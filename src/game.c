@@ -14,7 +14,7 @@ int main(int argc, char * argv[])
     int mx,my;
     float mf = 0;
     Sprite *mouse;
-    Color mouseColor = gfc_color8(255,100,255,200);
+    Color mouseColor = gfc_color8(255,0,0,200);
     
     /*program initializtion*/
     init_logger("gf2d.log",0);
@@ -25,14 +25,15 @@ int main(int argc, char * argv[])
         720,
         1200,
         720,
-        vector4d(0,0,0,255),
+        vector4d(17,74,82,255), //background color
         0);
     gf2d_graphics_set_frame_delay(16);
+    entity_manager_init(1024);
     gf2d_sprite_init(1024);
     SDL_ShowCursor(SDL_DISABLE);
     
     /*demo setup*/
-    sprite = gf2d_sprite_load_image("images/backgrounds/bg_flat.png");
+    sprite = gf2d_sprite_load_image("images/backgrounds/roby_pg.png");
     mouse = gf2d_sprite_load_all("images/pointer.png",32,32,16,0);
     /*main game loop*/
     while(!done)
@@ -66,6 +67,7 @@ int main(int argc, char * argv[])
         //slog("Rendering at %f FPS",gf2d_graphics_get_frames_per_second());
     }
     slog("---==== END ====---");
+    entity_manager_close();
     return 0;
 }
 /*eol@eof*/
