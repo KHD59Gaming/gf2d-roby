@@ -4,12 +4,15 @@
 #include "gf2d_graphics.h"
 #include "gf2d_sprite.h"
 
+#include "entity.h"
+
 int main(int argc, char * argv[])
 {
     /*variable declarations*/
     int done = 0;
     const Uint8 * keys;
     Sprite *sprite;
+    Entity *ent;
     
     int mx,my;
     float mf = 0;
@@ -35,6 +38,7 @@ int main(int argc, char * argv[])
     /*demo setup*/
     sprite = gf2d_sprite_load_image("images/backgrounds/roby_bg.png");
     mouse = gf2d_sprite_load_all("images/pointer.png",32,32,16,0);
+    ent = roby_new(vector2d(100,100));
     /*main game loop*/
     while(!done)
     {
@@ -44,12 +48,15 @@ int main(int argc, char * argv[])
         SDL_GetMouseState(&mx,&my);
         mf+=0.1;
         if (mf >= 16.0)mf = 0;
+        entity_think_all();
+        entity_update_all();
         
         gf2d_graphics_clear_screen();// clears drawing buffers
         // all drawing should happen betweem clear_screen and next_frame
             //backgrounds drawn first
             gf2d_sprite_draw_image(sprite,vector2d(0,0));
             
+            entity_draw_all();
             //UI elements last
             gf2d_sprite_draw(
                 mouse,
