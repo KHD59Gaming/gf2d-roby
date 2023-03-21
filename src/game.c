@@ -44,7 +44,7 @@ int main(int argc, char * argv[])
 
     sprite = gf2d_sprite_load_image("images/backgrounds/roby_bg.png");
     mouse = gf2d_sprite_load_all("images/pointer.png",32,32,16,0);
-    ent = roby_new(vector2d(100,100));
+    ent = roby_new(vector2d(100,500));
     /*main game loop*/
     while(!done)
     {

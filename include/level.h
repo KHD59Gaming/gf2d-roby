@@ -7,6 +7,10 @@
 
 #include "gf2d_sprite.h"
 
+#define LEVEL_MIN 32
+#define LEVEL_MAX_X 2656 //x coordinate of the last visible pixel
+#define LEVEL_MAX_Y 736 //y coordinate of the last visible pixel
+
 typedef struct
 {
     int tileFrame;

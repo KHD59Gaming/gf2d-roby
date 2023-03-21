@@ -115,8 +115,12 @@ void entity_update(Entity *ent)
     if (level_shape_clip(level_get_active_level(),entity_get_shape_after_move(ent) ))
     {
         //our next position is a hit, so don't move
+        //slog("clipping");
+        ent->clipping = true;
         return;
     }
+    ent->clipping = false;
+    //slog("not clipping");
     vector2d_add(ent->position,ent->position,ent->velocity);
     if(vector2d_magnitude_compare(ent->velocity,0) != 0)
     {

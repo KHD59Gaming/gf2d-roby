@@ -15,6 +15,7 @@ typedef struct Entity_S
     float   rotation;
     float   speed;
     Vector2D drawOffset;
+    Bool clipping;
     
     Shape shape;    //collision shape
     
