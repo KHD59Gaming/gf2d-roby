@@ -4,12 +4,15 @@
 #include "gf2d_graphics.h"
 #include "gf2d_sprite.h"
 
+#include "level.h"
 #include "entity.h"
+#include "camera.h"
 
 int main(int argc, char * argv[])
 {
     /*variable declarations*/
     int done = 0;
+    Level *level;
     const Uint8 * keys;
     Sprite *sprite;
     Entity *ent;
@@ -36,6 +39,9 @@ int main(int argc, char * argv[])
     SDL_ShowCursor(SDL_DISABLE);
     
     /*demo setup*/
+    level = level_load("levels/roby_level_zero.rlmap");
+    level_set_active_level(level);
+
     sprite = gf2d_sprite_load_image("images/backgrounds/roby_bg.png");
     mouse = gf2d_sprite_load_all("images/pointer.png",32,32,16,0);
     ent = roby_new(vector2d(100,100));
@@ -50,12 +56,13 @@ int main(int argc, char * argv[])
         if (mf >= 16.0)mf = 0;
         entity_think_all();
         entity_update_all();
+        camera_world_snap();
         
         gf2d_graphics_clear_screen();// clears drawing buffers
         // all drawing should happen betweem clear_screen and next_frame
             //backgrounds drawn first
             gf2d_sprite_draw_image(sprite,vector2d(0,0));
-            
+            level_draw(level_get_active_level());
             entity_draw_all();
             //UI elements last
             gf2d_sprite_draw(
@@ -74,6 +81,7 @@ int main(int argc, char * argv[])
         //slog("Rendering at %f FPS",gf2d_graphics_get_frames_per_second());
     }
     slog("---==== END ====---");
+    level_free(level);
     entity_manager_close();
     return 0;
 }

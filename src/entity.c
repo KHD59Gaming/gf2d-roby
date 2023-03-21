@@ -1,6 +1,7 @@
 #include "simple_logger.h"
 #include "gf2d_draw.h"
-
+#include "camera.h"
+#include "level.h"
 #include "entity.h"
 
 typedef struct
@@ -72,12 +73,15 @@ void entity_free(Entity *ent)
 
 void entity_draw(Entity *ent)
 {
+    Vector2D drawPosition,camera;
     if (!ent)return;
+    camera = camera_get_draw_offset();
+    vector2d_add(drawPosition,ent->position,camera);
     if (ent->sprite)
     {
         gf2d_sprite_draw(
             ent->sprite,
-            ent->position,
+            drawPosition,
             NULL,
             &ent->drawOffset,
             &ent->rotation,
@@ -85,9 +89,8 @@ void entity_draw(Entity *ent)
             NULL,
             (Uint32)ent->frame);
     }
-    gf2d_draw_pixel(ent->position,GFC_COLOR_YELLOW);
-    //gf2d_draw_circle(ent->position,10,GFC_COLOR_YELLOW);
-    gf2d_draw_rect(gfc_rect(ent->position.x-(0.5*ent->sprite->frame_w),ent->position.y-(0.5*ent->sprite->frame_h),ent->sprite->frame_w,ent->sprite->frame_h),GFC_COLOR_YELLOW);
+    gf2d_draw_pixel(drawPosition,GFC_COLOR_YELLOW);
+    gf2d_draw_circle(drawPosition,10,GFC_COLOR_YELLOW);
 }
 
 void entity_draw_all()
@@ -109,6 +112,11 @@ void entity_update(Entity *ent)
     }
     //ent->frame += 0.1;
     if (ent->frame >= 16)ent->frame = 0;
+    if (level_shape_clip(level_get_active_level(),entity_get_shape_after_move(ent) ))
+    {
+        //our next position is a hit, so don't move
+        return;
+    }
     vector2d_add(ent->position,ent->position,ent->velocity);
     if(vector2d_magnitude_compare(ent->velocity,0) != 0)
     {
@@ -152,5 +160,23 @@ SJson *entity_get_def_by_name(const char *name)
     return NULL;
 }
 
+Shape entity_get_shape_after_move(Entity *ent)
+{
+    Shape shape = {0};
+    if (!ent)return shape;
+    gfc_shape_copy(&shape,ent->shape);
+    gfc_shape_move(&shape,ent->position);
+    gfc_shape_move(&shape,ent->velocity);
+    return shape;
+}
+
+Shape entity_get_shape(Entity *ent)
+{
+    Shape shape = {0};
+    if (!ent)return shape;
+    gfc_shape_copy(&shape,ent->shape);
+    gfc_shape_move(&shape,ent->position);
+    return shape;
+}
 
 /*eol@eof*/
