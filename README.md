@@ -1,30 +1,14 @@
-# gameframework2d (GF2D)
-a collection of utlitity functions designed to facilitate creating 2D games with SDL2
-This project is specifically intended to function as an educational tool for my students taking 2D Game Programming.
+Ryan Downey 2D Game Development Midterm
 
-FOR FULL FEATURES CHECKOUT THE MASTER BRANCH
-Students: Don't do that.  You are not ready.... yet.
+So far attached is my project: Roby. It is a 2D platformer that takes inspiration from Mario, Mega Man, and other platformers I grew up playing. So far the only functional control for the game are the ADW keys for movement.
 
-The main branch is kept deliberately minimal to allow students to build out systems as they are learning.
-Other branches have more complete system: Collisions, Windows, Armatures, Entities, Particles...
+Common Deliverables Complete:
+- The entity system is viewable in entity.c/entity.h
+- The game map is fully interactable
+- The HUD for what power up drive Roby has is on the screen, but won't change due to the power ups not being done. However, I can prove that it does change.
+- All level and entity data is defined in the JSON files in the repository
+- The README is right here.
 
-# Build Process
-
-Before you can build the example code we are providing for you, you will need to obtain the libraries required
-by the source code
- - SDL2
- - SDL2_image
- - SDL2_mixer
- - SDL2_ttf
-There are additional sub modules that are needed for this project to work as well, but they can be pulled right from within the project.
-Performable from the following steps from the root of the cloned git repository within a terminal. 
-
-Make sure you fetch submodules: `git submodule update --init --recursive`
-Go into each submodule's src directory and type:
-`make`
-`make static`
-
-Once each submodule has been made you can go into the base project src folder anre simply type:
-`make`
-
-You should now have a `gf2d` binary within the root of your git repository. Executing this will start your game.
+Personal Deliverables Complete:
+- The platforming gameworld and physics are functional and viewable through play
+- The 5 pickups/items do spawn on the screen but I couldn't get the collisons to work so they do not activate
