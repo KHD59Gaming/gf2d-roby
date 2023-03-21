@@ -11,8 +11,6 @@
 #define ROBY_SPEED_POWER 4
 #define ROBY_GOLD_POWER 5
 
-int power;
-
 /**
  * @brief spawn a new space bug at the given location
  * @param position where to spawn roby at
@@ -21,5 +19,7 @@ int power;
 Entity *roby_new(Vector2D position);
 
 void roby_think(Entity *self);
+
+void roby_edit_power(Entity *self, int p);
 
 #endif

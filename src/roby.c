@@ -24,7 +24,9 @@ Entity *roby_new(Vector2D position)
     ent->drawOffset = vector2d(32,32);
     ent->speed = ROBY_SPEED;
     ent->shape = gfc_shape_rect(-32,0,64,32);
-    power = ROBY_PROTO_POWER;
+    ent->roby_power = ROBY_PROTO_POWER;
+    ent->is_roby = true;
+    ent->is_battery = false;
     return ent;
 }
 
@@ -100,6 +102,7 @@ void roby_think(Entity *self)
         gravFrames = 0;
     }
 
+    if (self->position.x < LEVEL_MIN)self->position.x = LEVEL_MIN; //prevents going past the map left
     if (self->position.y > LEVEL_MAX_Y)self->position.y = LEVEL_MAX_Y; //prevents falling below the map
 
     /*
@@ -112,7 +115,37 @@ void roby_think(Entity *self)
 
     camera_center_at(self->position);
 
-    slog("Roby Position: %.2f, %.2f", self->position.x, self->position.y);
+    //slog("Roby Position: %.2f, %.2f", self->position.x, self->position.y);
+}
+
+void roby_edit_power(Entity *self, int p) {
+    slog("power edit");
+    switch(p) {
+            case ROBY_PROTO_POWER:
+                self->sprite = gf2d_sprite_load_image("images/roby/roby_idle.png");
+                self->roby_power = ROBY_PROTO_POWER;
+                break;
+            case ROBY_FLARE_POWER:
+                self->sprite = gf2d_sprite_load_image("images/roby/flare_roby_idle.png");
+                self->roby_power = ROBY_FLARE_POWER;
+                break;
+            case ROBY_VOLT_POWER:
+                self->sprite = gf2d_sprite_load_image("images/roby/volt_roby_idle.png");
+                self->roby_power = ROBY_VOLT_POWER;
+                break;
+            case ROBY_BOUNCE_POWER:
+                self->sprite = gf2d_sprite_load_image("images/roby/bounce_roby_idle.png");
+                self->roby_power = ROBY_BOUNCE_POWER;
+                break;
+            case ROBY_SPEED_POWER:
+                self->sprite = gf2d_sprite_load_image("images/roby/speed_roby_idle.png");
+                self->roby_power = ROBY_SPEED_POWER;
+                break;
+            case ROBY_GOLD_POWER:
+                self->sprite = gf2d_sprite_load_image("images/roby/gold_roby_idle.png");
+                self->roby_power = ROBY_GOLD_POWER;
+                break;
+        }
 }
 
 /*eol@eof*/

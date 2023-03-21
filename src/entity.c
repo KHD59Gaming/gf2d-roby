@@ -128,6 +128,26 @@ void entity_update(Entity *ent)
         //ent->rotation = (vector2d_angle(ent->velocity) + 180);
 //        angle_clamp_radians(&ent->rotation);
     }
+    int i,j;
+    for (i = 0; i < entity_manager.entity_max; i++)
+    {
+        for (j = 0; j < entity_manager.entity_max; j++) {
+            if (!entity_manager.entity_list[i]._inuse || !entity_manager.entity_list[j]._inuse || i == j)continue;
+            if(!gfc_shape_overlap(entity_manager.entity_list[i].shape,entity_manager.entity_list[j].shape)) {
+                slog("roby grabbed");
+                Entity *r, *b;
+                if (entity_manager.entity_list[i].is_roby) {
+                    r = &entity_manager.entity_list[i];
+                    b = &entity_manager.entity_list[j];
+                }
+                else {
+                    r = &entity_manager.entity_list[j];
+                    b = &entity_manager.entity_list[i];
+                }
+                roby_edit_power(r,b->roby_power);
+            }
+        }
+    }
 }
 
 void entity_update_all()

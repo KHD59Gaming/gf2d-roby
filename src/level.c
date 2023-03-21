@@ -129,7 +129,7 @@ void level_build_clip_space(Level *level)
             if (!shape)continue;
             *shape = gfc_shape_rect(i * level->tileSize.x, j * level->tileSize.y, level->tileSize.x,level->tileSize.y);
             gfc_list_append(level->clips,shape);
-            slog("tile at %d, %d on list",j*64,i*64);
+            //slog("tile at %d, %d on list",j*64,i*64);
         }
     }
 }

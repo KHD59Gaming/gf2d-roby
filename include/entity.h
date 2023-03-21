@@ -16,6 +16,9 @@ typedef struct Entity_S
     float   speed;
     Vector2D drawOffset;
     Bool clipping;
+    int roby_power;
+    Bool is_roby;
+    Bool is_battery;
     
     Shape shape;    //collision shape
     
