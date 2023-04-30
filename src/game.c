@@ -11,8 +11,7 @@
 #include "roby.h"
 
 void editor() {
-    init_logger("gf2d.log",0);
-    slog("Editor!");
+    slog("Editor selected");
 }
 
 void game() {
@@ -28,7 +27,6 @@ void game() {
     Sprite *mouse;
 
     /*program initializtion*/
-    init_logger("gf2d.log",0);
     slog("---==== BEGIN ====---");
     gf2d_graphics_initialize(
         "gf2d",
@@ -112,7 +110,8 @@ void game() {
     
 
 int main(int argc, char * argv[]) {
-    if (strcmp(argv[1],"-e") == 0) {
+    init_logger("gf2d.log",0);
+    if ((argc > 1) && (strcmp(argv[1],"-e") == 0)) {
         editor();
     }
     else {
