@@ -10,8 +10,12 @@
 #include "camera.h"
 #include "roby.h"
 
-int main(int argc, char * argv[])
-{
+void editor() {
+    init_logger("gf2d.log",0);
+    slog("Editor!");
+}
+
+void game() {
     /*variable declarations*/
     int done = 0;
     Level *level;
@@ -45,12 +49,12 @@ int main(int argc, char * argv[])
 
     sprite = gf2d_sprite_load_image("images/backgrounds/roby_bg.png");
     //mouse = gf2d_sprite_load_all("images/pointer.png",32,32,16,0);
-    ent = roby_new(vector2d(100,500));
     b1 = battery_new(vector2d(500,500),ROBY_FLARE_POWER,ent);
     b2 = battery_new(vector2d(700,500),ROBY_VOLT_POWER,ent);
     b3 = battery_new(vector2d(900,150),ROBY_BOUNCE_POWER,ent);
     b4 = battery_new(vector2d(500,150),ROBY_SPEED_POWER,ent);
     b5 = battery_new(vector2d(300,500),ROBY_GOLD_POWER,ent);
+    ent = roby_new(vector2d(100,500));
 
     /*main game loop*/
     while(!done)
@@ -104,6 +108,16 @@ int main(int argc, char * argv[])
     slog("---==== END ====---");
     level_free(level);
     entity_manager_close();
+}
+    
+
+int main(int argc, char * argv[]) {
+    if (strcmp(argv[1],"-e") == 0) {
+        editor();
+    }
+    else {
+        game();
+    }
     return 0;
 }
 /*eol@eof*/
