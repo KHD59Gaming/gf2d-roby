@@ -29,7 +29,7 @@ void game() {
     /*program initializtion*/
     slog("---==== BEGIN ====---");
     gf2d_graphics_initialize(
-        "gf2d",
+        "Roby",
         1200,
         720,
         1200,
