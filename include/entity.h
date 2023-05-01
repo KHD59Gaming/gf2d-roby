@@ -15,7 +15,7 @@ typedef struct Entity_S
     float   rotation;
     float   speed;
     Vector2D drawOffset;
-    Bool clipping;
+    int grounded;
     int roby_power;
     Bool is_roby;
     Bool is_battery;

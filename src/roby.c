@@ -71,7 +71,7 @@ void roby_think(Entity *self)
     }
     if (keys[SDL_SCANCODE_W]) {
         //slog("W key pressed");
-        if (jumpFrames <= ROBY_MAX_JUMP_FRAMES) {
+        if ((jumpFrames <= ROBY_MAX_JUMP_FRAMES)) {
             self->velocity.y -= (ROBY_MAX_JUMP_HEIGHT - (0.1 * jumpFrames));
             jumpFrames++;
         }
@@ -85,7 +85,7 @@ void roby_think(Entity *self)
             self->sprite = gf2d_sprite_load_image("images/roby/roby_air.png");
         }
     }
-    else if (!keys[SDL_SCANCODE_W]) {
+    else if ((!keys[SDL_SCANCODE_W]) && (self->grounded)) {
         jumpFrames = 0;
     }
     else if (!keys[SDL_SCANCODE_A] && !keys[SDL_SCANCODE_D] && !keys[SDL_SCANCODE_SPACE] && !keys[SDL_SCANCODE_W]) {
@@ -93,7 +93,7 @@ void roby_think(Entity *self)
         self->sprite = gf2d_sprite_load_image("images/roby/roby_idle.png");
     }
 
-    if (!self->clipping) {
+    if (!self->grounded) {
         self->velocity.y += ROBY_GRAVITY * gravFrames;
         gravFrames++;
     }
@@ -104,6 +104,8 @@ void roby_think(Entity *self)
 
     if (self->position.x < LEVEL_MIN)self->position.x = LEVEL_MIN; //prevents going past the map left
     if (self->position.y > LEVEL_MAX_Y)self->position.y = LEVEL_MAX_Y; //prevents falling below the map
+
+    //slog("%d",self->grounded);
 
     /*
     self->velocity.y += ROBY_GRAVITY;
