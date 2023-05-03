@@ -3,6 +3,8 @@
 #include "camera.h"
 #include "level.h"
 #include "entity.h"
+#include "collisions.h"
+#include "roby.h"
 
 typedef struct
 {
@@ -36,7 +38,7 @@ void entity_manager_init(Uint32 max)
     entity_manager.entity_max = max;
     entity_manager.entity_def = sj_load("config/entities.def");
     atexit(entity_manager_close);
-    slog("entity system initialized");
+    slog("entity system initialized with size %d",entity_manager.entity_max);
 }
 
 void entity_free_all()
@@ -124,6 +126,24 @@ void entity_update(Entity *ent)
     ent->grounded = false;
     //slog("not clipping");
     vector2d_add(ent->position,ent->position,ent->velocity);
+
+    //Roby Collisions
+    int i, j;
+    for (i = 0; i < entity_manager.entity_max; i++) {
+        if (entity_manager.entity_list[i].is_roby) {
+            for (j = 0; j < entity_manager.entity_max; j++) {
+                if ((i == j) || (!entity_manager.entity_list[i]._inuse))continue;
+
+                if (entity_shapes_colliding(&entity_manager.entity_list[i],&entity_manager.entity_list[j])) {
+                    if (entity_manager.entity_list[j].is_battery) {
+                        roby_edit_power(&entity_manager.entity_list[i],entity_manager.entity_list[j].roby_power);
+                        entity_free(&entity_manager.entity_list[j]);
+                    }
+                }
+            }
+            break;
+        }
+    }
 }
 
 void entity_update_all()

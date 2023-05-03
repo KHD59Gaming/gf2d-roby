@@ -10,6 +10,32 @@
 #include "camera.h"
 #include "roby.h"
 
+void draw_power_hud(Entity *ent) {
+    Sprite *ph;
+    gf2d_draw_rect_filled(gfc_rect(20,20,400,50),gfc_color8(27,180,218,255));
+        switch(ent->roby_power) {
+            case ROBY_PROTO_POWER:
+                ph = gf2d_sprite_load_image("images/hud/proto_battery_hud.png");
+                break;
+            case ROBY_FLARE_POWER:
+                ph = gf2d_sprite_load_image("images/hud/flare_battery_hud.png");
+                break;
+            case ROBY_VOLT_POWER:
+                ph = gf2d_sprite_load_image("images/hud/volt_battery_hud.png");
+                break;
+            case ROBY_BOUNCE_POWER:
+                ph = gf2d_sprite_load_image("images/hud/bounce_battery_hud.png");
+                break;
+            case ROBY_SPEED_POWER:
+                ph = gf2d_sprite_load_image("images/hud/speed_battery_hud.png");
+                break;
+            case ROBY_GOLD_POWER:
+                ph = gf2d_sprite_load_image("images/hud/gold_battery_hud.png");
+                break;
+        }
+        gf2d_sprite_draw_image(ph,vector2d(20,20));
+}
+
 void editor() {
     slog("Editor selected");
 }
@@ -19,7 +45,7 @@ void game() {
     int done = 0;
     Level *level;
     const Uint8 * keys;
-    Sprite *sprite, *ph;
+    Sprite *sprite;
     Entity *ent, *b1, *b2, *b3, *b4, *b5;
     
     int mx,my;
@@ -37,8 +63,8 @@ void game() {
         vector4d(17,74,82,255), //background color
         0);
     gf2d_graphics_set_frame_delay(16);
-    entity_manager_init(1024);
-    gf2d_sprite_init(1024);
+    entity_manager_init(512);
+    gf2d_sprite_init(512);
     SDL_ShowCursor(SDL_DISABLE);
     
     /*demo setup*/
@@ -75,28 +101,7 @@ void game() {
             entity_draw_all();
         //UI elements last
 
-        gf2d_draw_rect_filled(gfc_rect(20,20,400,50),gfc_color8(27,180,218,255));
-        switch(ent->roby_power) {
-            case ROBY_PROTO_POWER:
-                ph = gf2d_sprite_load_image("images/hud/proto_battery_hud.png");
-                break;
-            case ROBY_FLARE_POWER:
-                ph = gf2d_sprite_load_image("images/hud/flare_battery_hud.png");
-                break;
-            case ROBY_VOLT_POWER:
-                ph = gf2d_sprite_load_image("images/hud/volt_battery_hud.png");
-                break;
-            case ROBY_BOUNCE_POWER:
-                ph = gf2d_sprite_load_image("images/hud/bounce_battery_hud.png");
-                break;
-            case ROBY_SPEED_POWER:
-                ph = gf2d_sprite_load_image("images/hud/speed_battery_hud.png");
-                break;
-            case ROBY_GOLD_POWER:
-                ph = gf2d_sprite_load_image("images/hud/gold_battery_hud.png");
-                break;
-        }
-        gf2d_sprite_draw_image(ph,vector2d(20,20));
+        draw_power_hud(ent);
 
         gf2d_graphics_next_frame();// render current draw frame and skip to the next frame
         

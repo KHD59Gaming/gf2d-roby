@@ -6,6 +6,7 @@
 #include "camera.h"
 #include "physics.h"
 #include "level.h"
+#include "collisions.h"
 
 int jumpFrames = 0;
 int gravFrames = 0;
@@ -32,39 +33,25 @@ Entity *roby_new(Vector2D position)
 
 void roby_think(Entity *self)
 {
-    /*Vector2D m,dir,camera;
-    int mx,my;
-    if (!self)return;
-    camera = camera_get_position();
-    SDL_GetMouseState(&mx,&my);
-    m.x = mx;
-    m.y = my;
-    vector2d_add(m,m,camera);
-    vector2d_sub(dir,m,self->position);
-    if (vector2d_magnitude_compare(dir,10)>0)
-    {
-        vector2d_set_magnitude(&dir,self->speed);
-        vector2d_copy(self->velocity,dir);
-    }
-    else
-    {
-        vector2d_clear(self->velocity);
-    }
-    camera_center_at(self->position);
-    */
-
     const Uint8 *keys = SDL_GetKeyboardState(NULL);
     self->velocity.x = 0.0;
     self->velocity.y = 0.0;
+    float speed_mult = 1;
     if (keys[SDL_SCANCODE_A]) {
         //slog("A key pressed");
-        self->sprite = gf2d_sprite_load_image("images/roby/roby_left.png");
-        self->velocity.x -= ROBY_SPEED;
+        roby_edit_sprite(self, ROBY_LEFT_FRAME);
+        if (self->roby_power == ROBY_SPEED_POWER) {
+            speed_mult = 1.5;
+        }
+        self->velocity.x -= (ROBY_SPEED * speed_mult);
     }
     else if (keys[SDL_SCANCODE_D]) {
         //slog("D key pressed");
-        self->sprite = gf2d_sprite_load_image("images/roby/roby_right.png");
-        self->velocity.x += ROBY_SPEED;
+        roby_edit_sprite(self, ROBY_RIGHT_FRAME);
+        if (self->roby_power == ROBY_SPEED_POWER) {
+            speed_mult = 1.5;
+        }
+        self->velocity.x += (ROBY_SPEED * speed_mult);
     }
     if (keys[SDL_SCANCODE_SPACE]) {
         //slog("Spacebar pressed");
@@ -72,17 +59,21 @@ void roby_think(Entity *self)
     if (keys[SDL_SCANCODE_W]) {
         //slog("W key pressed");
         if ((jumpFrames <= ROBY_MAX_JUMP_FRAMES)) {
-            self->velocity.y -= (ROBY_MAX_JUMP_HEIGHT - (0.1 * jumpFrames));
+            float bounce_mult = 1;
+            if (self->roby_power == ROBY_BOUNCE_POWER) {
+                bounce_mult = 1.5;
+            }
+            self->velocity.y -= ((ROBY_MAX_JUMP_HEIGHT * bounce_mult) - (0.1 * jumpFrames));
             jumpFrames++;
         }
         if (keys[SDL_SCANCODE_A]) {
-            self->sprite = gf2d_sprite_load_image("images/roby/roby_airleft.png");
+            roby_edit_sprite(self, ROBY_LEFTAIR_FRAME);
         }
         else if (keys[SDL_SCANCODE_D]) {
-            self->sprite = gf2d_sprite_load_image("images/roby/roby_airright.png");
+            roby_edit_sprite(self, ROBY_RIGHTAIR_FRAME);
         }
         else {
-            self->sprite = gf2d_sprite_load_image("images/roby/roby_air.png");
+            roby_edit_sprite(self, ROBY_AIR_FRAME);
         }
     }
     else if ((!keys[SDL_SCANCODE_W]) && (self->grounded)) {
@@ -90,7 +81,7 @@ void roby_think(Entity *self)
     }
     else if (!keys[SDL_SCANCODE_A] && !keys[SDL_SCANCODE_D] && !keys[SDL_SCANCODE_SPACE] && !keys[SDL_SCANCODE_W]) {
         //slog("No key pressed");
-        self->sprite = gf2d_sprite_load_image("images/roby/roby_idle.png");
+        roby_edit_sprite(self, ROBY_IDLE_FRAME);
     }
 
     if (!self->grounded) {
@@ -104,24 +95,13 @@ void roby_think(Entity *self)
 
     if (self->position.x < LEVEL_MIN)self->position.x = LEVEL_MIN; //prevents going past the map left
     if (self->position.y > LEVEL_MAX_Y)self->position.y = LEVEL_MAX_Y; //prevents falling below the map
-
     //slog("%d",self->grounded);
-
-    /*
-    self->velocity.y += ROBY_GRAVITY;
-
-    if (self->position.x < LEVEL_MIN)self->position.x = LEVEL_MIN; //prevents going past the map left
-    if (self->position.x > LEVEL_MAX_X)self->position.x = LEVEL_MAX_X; //prevents going past the map right
-    if (self->position.y > LEVEL_MAX_Y)self->position.y = LEVEL_MAX_Y; //prevents falling below the map
-    */
-
     camera_center_at(self->position);
-
     //slog("Roby Position: %.2f, %.2f", self->position.x, self->position.y);
 }
 
 void roby_edit_power(Entity *self, int p) {
-    slog("power edit");
+    slog("power edit to %d",p);
     switch(p) {
             case ROBY_PROTO_POWER:
                 self->sprite = gf2d_sprite_load_image("images/roby/roby_idle.png");
@@ -148,6 +128,166 @@ void roby_edit_power(Entity *self, int p) {
                 self->roby_power = ROBY_GOLD_POWER;
                 break;
         }
+}
+
+void roby_edit_sprite(Entity *self, int frame) {
+    if (!self)return;
+    switch(frame) {
+        case ROBY_IDLE_FRAME:
+            switch(self->roby_power) {
+                case ROBY_PROTO_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/roby_idle.png");
+                    break;
+                case ROBY_FLARE_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/flare_roby_idle.png");
+                    break;
+                case ROBY_VOLT_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/volt_roby_idle.png");
+                    break;
+                case ROBY_BOUNCE_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/bounce_roby_idle.png");
+                    break;
+                case ROBY_SPEED_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/speed_roby_idle.png");
+                    break;
+                case ROBY_GOLD_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/gold_roby_idle.png");
+                    break;
+            }
+            break;
+        case ROBY_LEFT_FRAME:
+            switch(self->roby_power) {
+                case ROBY_PROTO_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/roby_left.png");
+                    break;
+                case ROBY_FLARE_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/flare_roby_left.png");
+                    break;
+                case ROBY_VOLT_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/volt_roby_left.png");
+                    break;
+                case ROBY_BOUNCE_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/bounce_roby_left.png");
+                    break;
+                case ROBY_SPEED_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/speed_roby_left.png");
+                    break;
+                case ROBY_GOLD_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/gold_roby_left.png");
+                    break;
+            }
+            break;
+        case ROBY_RIGHT_FRAME:
+            switch(self->roby_power) {
+                case ROBY_PROTO_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/roby_right.png");
+                    break;
+                case ROBY_FLARE_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/flare_roby_right.png");
+                    break;
+                case ROBY_VOLT_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/volt_roby_right.png");
+                    break;
+                case ROBY_BOUNCE_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/bounce_roby_right.png");
+                    break;
+                case ROBY_SPEED_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/speed_roby_right.png");
+                    break;
+                case ROBY_GOLD_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/gold_roby_right.png");
+                    break;
+            }
+            break;
+        case ROBY_LEFTAIR_FRAME:
+            switch(self->roby_power) {
+                case ROBY_PROTO_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/roby_airleft.png");
+                    break;
+                case ROBY_FLARE_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/flare_roby_airleft.png");
+                    break;
+                case ROBY_VOLT_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/volt_roby_airleft.png");
+                    break;
+                case ROBY_BOUNCE_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/bounce_roby_airleft.png");
+                    break;
+                case ROBY_SPEED_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/speed_roby_airleft.png");
+                    break;
+                case ROBY_GOLD_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/gold_roby_airleft.png");
+                    break;
+            }
+            break;
+        case ROBY_RIGHTAIR_FRAME:
+            switch(self->roby_power) {
+                case ROBY_PROTO_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/roby_airright.png");
+                    break;
+                case ROBY_FLARE_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/flare_roby_airright.png");
+                    break;
+                case ROBY_VOLT_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/volt_roby_airright.png");
+                    break;
+                case ROBY_BOUNCE_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/bounce_roby_airright.png");
+                    break;
+                case ROBY_SPEED_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/speed_roby_airright.png");
+                    break;
+                case ROBY_GOLD_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/gold_roby_airright.png");
+                    break;
+            }
+            break;
+        case ROBY_AIR_FRAME:
+            switch(self->roby_power) {
+                case ROBY_PROTO_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/roby_air.png");
+                    break;
+                case ROBY_FLARE_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/flare_roby_air.png");
+                    break;
+                case ROBY_VOLT_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/volt_roby_air.png");
+                    break;
+                case ROBY_BOUNCE_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/bounce_roby_air.png");
+                    break;
+                case ROBY_SPEED_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/speed_roby_air.png");
+                    break;
+                case ROBY_GOLD_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/gold_roby_air.png");
+                    break;
+            }
+            break;
+        case ROBY_DEATH_FRAME:
+            switch(self->roby_power) {
+                case ROBY_PROTO_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/roby_death.png");
+                    break;
+                case ROBY_FLARE_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/flare_roby_death.png");
+                    break;
+                case ROBY_VOLT_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/volt_roby_death.png");
+                    break;
+                case ROBY_BOUNCE_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/bounce_roby_death.png");
+                    break;
+                case ROBY_SPEED_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/speed_roby_death.png");
+                    break;
+                case ROBY_GOLD_POWER:
+                    self->sprite = gf2d_sprite_load_image("images/roby/gold_roby_death.png");
+                    break;
+            }
+            break;
+    }
 }
 
 /*eol@eof*/
