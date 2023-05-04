@@ -28,13 +28,16 @@ Entity *roby_new(Vector2D position)
     ent->shape = gfc_shape_rect(-32,0,64,32);
     ent->roby_power = ROBY_PROTO_POWER;
     ent->is_roby = true;
+    ent->dead = false;
     ent->cooldown = 0;
+    ent->health = 1;
     //ent->is_battery = false;
     return ent;
 }
 
 void roby_think(Entity *self)
 {
+    //slog("current power id %d",self->roby_power);
     const Uint8 *keys = SDL_GetKeyboardState(NULL);
     self->velocity.x = 0.0;
     self->velocity.y = 0.0;
@@ -99,8 +102,8 @@ void roby_think(Entity *self)
             self->cooldown = 30;
         }
         else if (self->roby_power == ROBY_VOLT_POWER) {
-            slog("BOLT");
-             projectile_fire(self, PROJECTILE_TYPE_BOLT);
+            //slog("BOLT");
+            projectile_fire(self, PROJECTILE_TYPE_BOLT);
         }
         else {
             //slog("No projectile powerup");

@@ -6,8 +6,12 @@
 
 #include "gf2d_graphics.h"
 
+#include "entity.h"
 #include "camera.h"
 #include "level.h"
+#include "roby.h"
+#include "battery.h"
+#include "enemy.h"
 
 void level_build(Level *level);
 
@@ -21,6 +25,37 @@ Level *level_get_active_level()
 void level_set_active_level(Level *level)
 {
     activeLevel = level;
+}
+
+void level_load_entities(EntLoad *list, int count) {
+    if (!list) {
+        slog("entity list not found");
+        return;
+    }
+    for (int i = 0; i < count; i++) {
+        //slog("hi from load ent");
+        if (strcmp(list[i].ent_type,"roby") == 0) {
+            Entity *ent;
+            ent = roby_new(list[i].spawn);
+            if (!ent) {
+                slog("roby entity not created");
+            }
+        }
+        else if (strcmp(list[i].ent_type,"battery") == 0) {
+            Entity *ent;
+            ent = battery_new(list[i].spawn,list[i].power);
+            if (!ent) {
+                slog("flare_battery entity not created");
+            }
+        }
+        else if (strcmp(list[i].ent_type,"laservoid") == 0) {
+            Entity *ent;
+            ent = laservoid_new(list[i].spawn);
+            if (!ent) {
+                slog("laservoid entity not created");
+            }
+        }
+    }
 }
 
 Level *level_load(const char *filename)
@@ -94,9 +129,46 @@ Level *level_load(const char *filename)
             level->tileMap[(i * (int)level->mapSize.x) + j] = tile;
         }
     }
+    lj = sj_object_get_value(json,"entities");
+    if (!lj)
+    {
+        slog("file %s missing level object",filename);
+        sj_free(json);
+        level_free(level);
+        return NULL;
+    }
+    list = sj_object_get_value(lj,"entityList");
+    c = sj_array_get_count(list);
+    item = sj_array_get_nth(list,0);
+    if (c == 0)
+    {
+        slog("empty sjson count for %s level",filename);
+        level_free(level);
+        sj_free(json);
+        return NULL;
+    }
+    EntLoad *entlist = gfc_allocate_array(sizeof(EntLoad),c);
+    if (!entlist)
+    {
+        slog("failed to allocate entity list for level %s",filename);
+        level_free(level);
+        sj_free(json);
+        return NULL;
+    }
+    for (i = 0; i < c; i++) {
+        item = sj_array_get_nth(list,i);
+        if (!item)continue;
+        str = sj_object_get_value_as_string(item,"name");
+        if (str)gfc_line_cpy(entlist[i].ent_type,str);
+        sj_value_as_vector2d(sj_object_get_value(item,"spawn"),&entlist[i].spawn);
+        sj_object_get_value_as_int(item,"power",&entlist[i].power);
+        //slog("%s entity allocated",entlist[i].ent_type);
+    }
     sj_free(json);
     level_build(level);
     slog("level %s built",level->name);
+    level_load_entities(entlist, c);
+    slog("%d level entities loaded",entity_count());
     return level;
 }
 

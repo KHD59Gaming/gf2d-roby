@@ -11,7 +11,7 @@
 #define ROBY_SPEED_POWER 4
 #define ROBY_GOLD_POWER 5
 
-Entity *battery_new(Vector2D position, int power, Entity *roby);
+Entity *battery_new(Vector2D position, int power);
 
 void battery_think(Entity *self);
 

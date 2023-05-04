@@ -6,6 +6,7 @@
 
 #define PROJECTILE_TYPE_FLARE 0
 #define PROJECTILE_TYPE_BOLT 1
+#define PROJECTILE_TYPE_LASER 2
 
 /**
  * @brief spawn a new projectile at the given location
@@ -16,6 +17,8 @@
 Entity *projectile_new(Vector2D position, int dir);
 
 void projectile_think(Entity *self);
+
+Bool projectile_evil(int type);
 
 void projectile_fire(Entity *ent, int type);
 

@@ -7,6 +7,8 @@
 
 #include "gf2d_sprite.h"
 
+#include "ai.h"
+
 #define ENTITY_DIR_LEFT 0
 #define ENTITY_DIR_RIGHT 1
 
@@ -21,8 +23,10 @@ typedef struct Entity_S
     int grounded;
     int roby_power;
     Bool is_roby;
+    Bool dead;
     Bool is_battery;
     Bool is_projectile;
+    Bool is_enemy;
     
     Shape shape;    //collision shape
     
@@ -36,13 +40,19 @@ typedef struct Entity_S
     int cooldown;
     int proj_type;
     int bolt_frame;
+
+    int health;
     
     void (*think)(struct Entity_S *self);
     int (*update)(struct Entity_S *self);
     void (*draw)(struct Entity_S *self);
     void (*free_entity)(struct Entity_S *self);//cleanup of custom data if defined
     void *data;
+
+    AIState ai_state;
 }Entity;
+
+void entity_manager_close();
 
 /**
  * @brief initialize the internal manager for the entity system
@@ -56,6 +66,8 @@ void entity_manager_init(Uint32 max);
  * @return NULL if there are no entities left, an empty entity otherwise
  */
 Entity *entity_new();
+
+int entity_count();
 
 /**
  * @brief free a previously allocated entity
@@ -82,6 +94,8 @@ void entity_update_all();
  * @brief call all the think functions for the entities, if they have one
  */
 void entity_think_all();
+
+Entity *get_roby();
 
 /**
  * @brief given an entity get its shape in world space

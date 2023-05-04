@@ -5,6 +5,7 @@
 #include "entity.h"
 #include "collisions.h"
 #include "roby.h"
+#include "projectile.h"
 
 typedef struct
 {
@@ -61,6 +62,18 @@ Entity *entity_new()
         return &entity_manager.entity_list[i];
     }
     return NULL;
+}
+
+int entity_count() {
+    int i;
+    int count = 0;
+    for (i = 0; i < entity_manager.entity_max;i++)
+    {
+        if (entity_manager.entity_list[i]._inuse) {
+            count++;
+        }
+    }
+    return count;
 }
 
 void entity_free(Entity *ent)
@@ -131,6 +144,10 @@ void entity_update(Entity *ent)
     //slog("not clipping");
     vector2d_add(ent->position,ent->position,ent->velocity);
 
+    if ((ent->position.x < 0) || (ent->position.x > LEVEL_MAX_X)) {
+        entity_free(ent);
+    }
+
     //Roby Collisions
     int i, j;
     for (i = 0; i < entity_manager.entity_max; i++) {
@@ -142,6 +159,33 @@ void entity_update(Entity *ent)
                     if (entity_manager.entity_list[j].is_battery) {
                         roby_edit_power(&entity_manager.entity_list[i],entity_manager.entity_list[j].roby_power);
                         entity_free(&entity_manager.entity_list[j]);
+                    }
+                    else if (entity_manager.entity_list[j].is_projectile) {
+                        if (projectile_evil(entity_manager.entity_list[j].proj_type)) {
+                            //slog("evil projectile collision");
+                            if (entity_manager.entity_list[i].roby_power != ROBY_GOLD_POWER) {
+                                entity_manager.entity_list[i].health -= entity_manager.entity_list[j].damage;
+                                if (entity_manager.entity_list[i].health <= 0) {
+                                    entity_manager.entity_list[i].dead = true;
+                                    roby_edit_sprite(&entity_manager.entity_list[i], ROBY_DEATH_FRAME);
+                                    slog("death by enemy projectile");
+                                }
+                            }
+                            entity_free(&entity_manager.entity_list[j]);
+                        }
+                    }
+                    else if (entity_manager.entity_list[j].is_enemy) {
+                        if (entity_manager.entity_list[i].roby_power != ROBY_GOLD_POWER) {
+                            entity_manager.entity_list[i].health -= entity_manager.entity_list[j].damage;
+                            if (entity_manager.entity_list[i].health <= 0) {
+                                entity_manager.entity_list[i].dead = true;
+                                roby_edit_sprite(&entity_manager.entity_list[i], ROBY_DEATH_FRAME);
+                                slog("death by enemy contact");
+                            }
+                        }
+                        else {
+                            entity_free(&entity_manager.entity_list[j]);
+                        }
                     }
                 }
             }
@@ -174,6 +218,18 @@ void entity_think_all()
         if (!entity_manager.entity_list[i]._inuse)continue;
         entity_think(&entity_manager.entity_list[i]);
     }
+}
+
+Entity *get_roby() {
+    int i;
+    for (i = 0; i < entity_manager.entity_max;i++)
+    {
+        if (entity_manager.entity_list[i].is_roby) {
+            //slog("current power id %d",entity_manager.entity_list[i].roby_power);
+            return &entity_manager.entity_list[i];
+        }
+    }
+    return NULL;
 }
 
 SJson *entity_get_def_by_name(const char *name)

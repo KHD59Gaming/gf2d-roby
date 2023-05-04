@@ -5,6 +5,8 @@
 #include "gf2d_graphics.h"
 #include "gf2d_sprite.h"
 
+#include "gfc_types.h"
+
 #include "level.h"
 #include "entity.h"
 #include "camera.h"
@@ -46,11 +48,9 @@ void game() {
     Level *level;
     const Uint8 * keys;
     Sprite *sprite;
-    Entity *ent, *b1, *b2, *b3, *b4, *b5;
     
     int mx,my;
     float mf = 0;
-    Sprite *mouse;
 
     /*program initializtion*/
     slog("---==== BEGIN ====---");
@@ -73,12 +73,6 @@ void game() {
 
     sprite = gf2d_sprite_load_image("images/backgrounds/roby_bg.png");
     //mouse = gf2d_sprite_load_all("images/pointer.png",32,32,16,0);
-    b1 = battery_new(vector2d(500,500),ROBY_FLARE_POWER,ent);
-    b2 = battery_new(vector2d(700,500),ROBY_VOLT_POWER,ent);
-    b3 = battery_new(vector2d(900,150),ROBY_BOUNCE_POWER,ent);
-    b4 = battery_new(vector2d(500,150),ROBY_SPEED_POWER,ent);
-    b5 = battery_new(vector2d(300,500),ROBY_GOLD_POWER,ent);
-    ent = roby_new(vector2d(100,500));
 
     /*main game loop*/
     while(!done)
@@ -92,7 +86,6 @@ void game() {
         entity_think_all();
         entity_update_all();
         camera_world_snap();
-        
         gf2d_graphics_clear_screen();// clears drawing buffers
         // all drawing should happen betweem clear_screen and next_frame
             //backgrounds drawn first
@@ -100,11 +93,24 @@ void game() {
             level_draw(level_get_active_level());
             entity_draw_all();
         //UI elements last
-
-        draw_power_hud(ent);
-
+        draw_power_hud(get_roby());
+        slog("%d active entities",entity_count());
+        //slog("current power id %d",get_roby()->roby_power);
         gf2d_graphics_next_frame();// render current draw frame and skip to the next frame
-        
+
+        if (get_roby()->dead) {
+            slog("dead, press ENTER to continue");
+            Bool enterpress = false;
+            while(!enterpress) {
+                SDL_PumpEvents();
+                keys = SDL_GetKeyboardState(NULL);
+                if (keys[SDL_SCANCODE_RETURN]) {
+                    done = 1;
+                    enterpress = true;
+                }
+            }
+        }
+
         if (keys[SDL_SCANCODE_ESCAPE])done = 1; // exit condition
         //slog("Rendering at %f FPS",gf2d_graphics_get_frames_per_second());
     }

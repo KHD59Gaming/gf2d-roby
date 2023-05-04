@@ -12,9 +12,7 @@
 #define ROBY_SPEED_POWER 4
 #define ROBY_GOLD_POWER 5
 
-Entity *roby_addr;
-
-Entity *battery_new(Vector2D position, int power, Entity *roby) {
+Entity *battery_new(Vector2D position, int power) {
     Entity *ent;
     ent = entity_new();
     if (!ent)return NULL;
@@ -48,7 +46,6 @@ Entity *battery_new(Vector2D position, int power, Entity *roby) {
     vector2d_copy(ent->position,position);
     ent->drawOffset = vector2d(32,32);
     ent->shape = gfc_shape_rect(0,0,16,32);
-    roby_addr = roby;
     ent->is_battery = true;
     return ent;
 }

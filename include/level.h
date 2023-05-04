@@ -28,6 +28,13 @@ typedef struct
     List       *clips;      //list of static shapes to clip against in the game world
 }Level;
 
+typedef struct
+{
+    TextLine ent_type;
+    Vector2D spawn;
+    int power;
+}EntLoad;
+
 /**
  * @brief get the set active level pointer if it is set
  * @return NULL if no active level, or a pointer to it

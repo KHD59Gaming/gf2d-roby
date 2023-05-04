@@ -1,5 +1,6 @@
 #include "simple_logger.h"
 #include "gfc_shape.h"
+#include "gfc_types.h"
 #include "gfc_vector.h"
 #include "entity.h"
 #include "projectile.h"
@@ -29,6 +30,7 @@ void projectile_think(Entity *self) {
     self->velocity.y = 0.0;
     switch(self->proj_type) {
         case PROJECTILE_TYPE_FLARE:
+        case PROJECTILE_TYPE_LASER:
             if (self->direction == ENTITY_DIR_RIGHT) {
                 self->velocity.x += self->velo_per_frame;
             }
@@ -55,7 +57,14 @@ void projectile_think(Entity *self) {
             break;
     }
     //slog("%d",self->grounded);
-    //slog("hi from projecile think, velo = %.1f",self->velocity.x);
+    //slog("hi from projecile think, velo = %.1f, x: %.1f, y: %.1f",self->velocity.x,self->position.x,self->position.y);
+}
+
+Bool projectile_evil(int type) {
+    if (type == PROJECTILE_TYPE_LASER) {
+        return true;
+    }
+    return false;
 }
 
 void init_projectile_params(Entity *self, int type) {
@@ -75,6 +84,14 @@ void init_projectile_params(Entity *self, int type) {
             self->proj_type = type;
             self->position.x -= 16; //looks better
             break;
+        case PROJECTILE_TYPE_LASER:
+            self->sprite = gf2d_sprite_load_image("images/projectiles/laser.png");
+            self->velo_per_frame = 12;
+            self->damage = 1;
+            self->proj_type = type;
+            self->position.x -= 48;
+            self->position.y -= 32;
+            break;
     }
 }
 
@@ -82,10 +99,13 @@ void projectile_fire(Entity *ent, int type) {
     if ((!ent))return;
     Entity *proj;
     Vector2D spawn_position = ent->position;
-    spawn_position.x += 32;
+    spawn_position.x -= 32;
     spawn_position.y += 32;
     proj = projectile_new(spawn_position,type);
-    if ((!proj))return;
+    if ((!proj)) {
+        slog("projectile not spawned");
+        return;
+    }
     init_projectile_params(proj, type);
     proj->direction = ent->direction;
 }
