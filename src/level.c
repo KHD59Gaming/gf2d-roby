@@ -55,6 +55,13 @@ void level_load_entities(EntLoad *list, int count) {
                 slog("laservoid entity not created");
             }
         }
+        else if (strcmp(list[i].ent_type,"flarevoid") == 0) {
+            Entity *ent;
+            ent = flarevoid_new(list[i].spawn);
+            if (!ent) {
+                slog("flarevoid entity not created");
+            }
+        }
     }
 }
 

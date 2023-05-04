@@ -11,6 +11,10 @@ Entity *enemy_new(Vector2D position);
 
 Entity *laservoid_new(Vector2D position);
 
+Entity *flarevoid_new(Vector2D position);
+
 void laservoid_think(Entity *self);
+
+void flarevoid_think(Entity *self);
 
 #endif

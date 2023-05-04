@@ -89,8 +89,6 @@ void init_projectile_params(Entity *self, int type) {
             self->velo_per_frame = 12;
             self->damage = 1;
             self->proj_type = type;
-            self->position.x -= 48;
-            self->position.y -= 32;
             break;
     }
 }
@@ -108,4 +106,12 @@ void projectile_fire(Entity *ent, int type) {
     }
     init_projectile_params(proj, type);
     proj->direction = ent->direction;
+    if (ent->is_enemy) {
+        proj->position.x -= 48;
+        proj->position.y -= 32;
+        proj->enemy_proj = true;
+    }
+    else {
+        proj->enemy_proj = false;
+    }
 }

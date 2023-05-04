@@ -30,12 +30,17 @@
             },
             {
                 "name":"battery",
-                "spawn":[500,500],
-                "power":5
+                "spawn":[300,500],
+                "power":1
             },
             {
                 "name":"laservoid",
                 "spawn":[800,608],
+                "power":0
+            },
+            {
+                "name":"flarevoid",
+                "spawn":[1900,608],
                 "power":0
             }
         ]

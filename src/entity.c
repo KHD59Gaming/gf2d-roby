@@ -161,7 +161,7 @@ void entity_update(Entity *ent)
                         entity_free(&entity_manager.entity_list[j]);
                     }
                     else if (entity_manager.entity_list[j].is_projectile) {
-                        if (projectile_evil(entity_manager.entity_list[j].proj_type)) {
+                        if (entity_manager.entity_list[j].enemy_proj) {
                             //slog("evil projectile collision");
                             if (entity_manager.entity_list[i].roby_power != ROBY_GOLD_POWER) {
                                 entity_manager.entity_list[i].health -= entity_manager.entity_list[j].damage;
@@ -186,6 +186,30 @@ void entity_update(Entity *ent)
                         else {
                             entity_free(&entity_manager.entity_list[j]);
                         }
+                    }
+                }
+            }
+            break;
+        }
+    }
+
+    //Projectile Collisions
+    for (i = 0; i < entity_manager.entity_max; i++) {
+        if (entity_manager.entity_list[i].is_projectile) {
+            for (j = 0; j < entity_manager.entity_max; j++) {
+                if ((i == j) || (!entity_manager.entity_list[i]._inuse))continue;
+
+                if (entity_shapes_colliding(&entity_manager.entity_list[i],&entity_manager.entity_list[j])) {
+                    if (entity_manager.entity_list[j].is_projectile) {
+                        entity_free(&entity_manager.entity_list[i]);
+                        entity_free(&entity_manager.entity_list[j]);
+                    }
+                    else if (entity_manager.entity_list[j].is_enemy) {
+                        entity_manager.entity_list[j].health -= entity_manager.entity_list[i].damage;
+                        if (entity_manager.entity_list[j].health <= 0) {
+                            entity_free(&entity_manager.entity_list[j]);
+                        }
+                        entity_free(&entity_manager.entity_list[i]);
                     }
                 }
             }

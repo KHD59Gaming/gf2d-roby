@@ -40,6 +40,7 @@ typedef struct Entity_S
     int cooldown;
     int proj_type;
     int bolt_frame;
+    Bool enemy_proj;
 
     int health;
     
