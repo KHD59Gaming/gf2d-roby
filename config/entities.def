@@ -102,6 +102,22 @@
                 "radius":32
             },
             "speed":5
+        },
+        {
+            "name":"projectile",
+            "actor":{
+                "frameSize":[16,16],
+                "framePerLine":16,
+                "drawOffset":[64,74],
+                "drawScale":[1,1],
+            },
+            "collision":
+            {
+                "type":"circle",
+                "center":[0,0],
+                "radius":8
+            },
+            "speed":5
         }
     ]
 }

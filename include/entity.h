@@ -7,6 +7,9 @@
 
 #include "gf2d_sprite.h"
 
+#define ENTITY_DIR_LEFT 0
+#define ENTITY_DIR_RIGHT 1
+
 typedef struct Entity_S
 {
     Bool    _inuse;
@@ -19,12 +22,20 @@ typedef struct Entity_S
     int roby_power;
     Bool is_roby;
     Bool is_battery;
+    Bool is_projectile;
     
     Shape shape;    //collision shape
     
     Vector2D position;
     Vector2D velocity;
     Vector2D acceleration;
+
+    int direction;
+    int velo_per_frame;
+    int damage;
+    int cooldown;
+    int proj_type;
+    int bolt_frame;
     
     void (*think)(struct Entity_S *self);
     int (*update)(struct Entity_S *self);

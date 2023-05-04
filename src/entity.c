@@ -91,8 +91,8 @@ void entity_draw(Entity *ent)
             NULL,
             (Uint32)ent->frame);
     }
-    gf2d_draw_pixel(drawPosition,GFC_COLOR_YELLOW);
-    gf2d_draw_circle(drawPosition,10,GFC_COLOR_YELLOW);
+    //gf2d_draw_pixel(drawPosition,GFC_COLOR_YELLOW);
+    //gf2d_draw_circle(drawPosition,10,GFC_COLOR_YELLOW);
 }
 
 void entity_draw_all()
@@ -120,6 +120,10 @@ void entity_update(Entity *ent)
         //slog("clipping");
         if (!ent->grounded) {
             ent->grounded = true;
+        }
+        if (ent->is_projectile) {
+            //slog("projectile tile collision");
+            entity_free(ent);
         }
         return;
     }

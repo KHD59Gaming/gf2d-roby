@@ -50,7 +50,6 @@ Entity *battery_new(Vector2D position, int power, Entity *roby) {
     ent->shape = gfc_shape_rect(0,0,16,32);
     roby_addr = roby;
     ent->is_battery = true;
-    ent->is_roby = false;
     return ent;
 }
 

@@ -7,6 +7,7 @@
 #include "physics.h"
 #include "level.h"
 #include "collisions.h"
+#include "projectile.h"
 
 int jumpFrames = 0;
 int gravFrames = 0;
@@ -27,7 +28,8 @@ Entity *roby_new(Vector2D position)
     ent->shape = gfc_shape_rect(-32,0,64,32);
     ent->roby_power = ROBY_PROTO_POWER;
     ent->is_roby = true;
-    ent->is_battery = false;
+    ent->cooldown = 0;
+    //ent->is_battery = false;
     return ent;
 }
 
@@ -44,6 +46,7 @@ void roby_think(Entity *self)
             speed_mult = 1.5;
         }
         self->velocity.x -= (ROBY_SPEED * speed_mult);
+        self->direction = ENTITY_DIR_LEFT;
     }
     else if (keys[SDL_SCANCODE_D]) {
         //slog("D key pressed");
@@ -52,6 +55,7 @@ void roby_think(Entity *self)
             speed_mult = 1.5;
         }
         self->velocity.x += (ROBY_SPEED * speed_mult);
+        self->direction = ENTITY_DIR_RIGHT;
     }
     if (keys[SDL_SCANCODE_SPACE]) {
         //slog("Spacebar pressed");
@@ -68,12 +72,15 @@ void roby_think(Entity *self)
         }
         if (keys[SDL_SCANCODE_A]) {
             roby_edit_sprite(self, ROBY_LEFTAIR_FRAME);
+            self->direction = ENTITY_DIR_LEFT;
         }
         else if (keys[SDL_SCANCODE_D]) {
             roby_edit_sprite(self, ROBY_RIGHTAIR_FRAME);
+            self->direction = ENTITY_DIR_RIGHT;
         }
         else {
             roby_edit_sprite(self, ROBY_AIR_FRAME);
+            self->direction = ENTITY_DIR_RIGHT;
         }
     }
     else if ((!keys[SDL_SCANCODE_W]) && (self->grounded)) {
@@ -82,6 +89,22 @@ void roby_think(Entity *self)
     else if (!keys[SDL_SCANCODE_A] && !keys[SDL_SCANCODE_D] && !keys[SDL_SCANCODE_SPACE] && !keys[SDL_SCANCODE_W]) {
         //slog("No key pressed");
         roby_edit_sprite(self, ROBY_IDLE_FRAME);
+    }
+
+    if (keys[SDL_SCANCODE_E]) {
+        //slog("projectile button press");
+        if ((self->roby_power == ROBY_FLARE_POWER) && (self->cooldown == 0)) {
+            //slog("FIRE");
+            projectile_fire(self, PROJECTILE_TYPE_FLARE);
+            self->cooldown = 30;
+        }
+        else if (self->roby_power == ROBY_VOLT_POWER) {
+            slog("BOLT");
+             projectile_fire(self, PROJECTILE_TYPE_BOLT);
+        }
+        else {
+            //slog("No projectile powerup");
+        }
     }
 
     if (!self->grounded) {
@@ -98,10 +121,13 @@ void roby_think(Entity *self)
     //slog("%d",self->grounded);
     camera_center_at(self->position);
     //slog("Roby Position: %.2f, %.2f", self->position.x, self->position.y);
+    if (self->cooldown > 0) {
+        self->cooldown--;
+    }
 }
 
 void roby_edit_power(Entity *self, int p) {
-    slog("power edit to %d",p);
+    //slog("power edit to %d",p);
     switch(p) {
             case ROBY_PROTO_POWER:
                 self->sprite = gf2d_sprite_load_image("images/roby/roby_idle.png");
