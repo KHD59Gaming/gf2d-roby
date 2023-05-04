@@ -138,7 +138,10 @@ void entity_update(Entity *ent)
             //slog("projectile tile collision");
             entity_free(ent);
         }
-        return;
+
+        if (!ent->is_ground_free) {
+            return;
+        }
     }
     ent->grounded = false;
     //slog("not clipping");

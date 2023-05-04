@@ -5,6 +5,7 @@
 #include "gf2d_graphics.h"
 #include "gf2d_sprite.h"
 
+#include "gfc_audio.h"
 #include "gfc_types.h"
 
 #include "level.h"
@@ -47,7 +48,7 @@ void game() {
     int done = 0;
     Level *level;
     const Uint8 * keys;
-    Sprite *sprite;
+    Sprite *sprite, *menu;
     
     int mx,my;
     float mf = 0;
@@ -65,6 +66,7 @@ void game() {
     gf2d_graphics_set_frame_delay(16);
     entity_manager_init(512);
     gf2d_sprite_init(512);
+    //gfc_audio_init(10, 3, 1, 2, true, true);
     SDL_ShowCursor(SDL_DISABLE);
     
     /*demo setup*/
@@ -73,7 +75,20 @@ void game() {
 
     sprite = gf2d_sprite_load_image("images/backgrounds/roby_bg.png");
     //mouse = gf2d_sprite_load_all("images/pointer.png",32,32,16,0);
-
+    menu = gf2d_sprite_load_image("images/backgrounds/menu.png");
+    gf2d_sprite_draw_image(menu,vector2d(0,0));
+    while(!done) {
+        SDL_PumpEvents();   // update SDL's internal event structures
+        keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
+        if (keys[SDL_SCANCODE_RETURN]) {
+            done = 1;
+        }
+        else if (keys[SDL_SCANCODE_ESCAPE]) {
+            return;
+        }
+        gf2d_graphics_next_frame();
+    }
+    done = 0;
     /*main game loop*/
     while(!done)
     {
@@ -94,21 +109,26 @@ void game() {
             entity_draw_all();
         //UI elements last
         draw_power_hud(get_roby());
-        slog("%d active entities",entity_count());
+        //slog("%d active entities",entity_count());
         //slog("current power id %d",get_roby()->roby_power);
         gf2d_graphics_next_frame();// render current draw frame and skip to the next frame
 
         if (get_roby()->dead) {
+            //gfc_sound_play(gfc_sound_load("audio/death.wav",0.5,0),0,0.5,-1,-1);
             slog("dead, press ENTER to continue");
             Bool enterpress = false;
+            Sprite *death = gf2d_sprite_load_image("images/backgrounds/death_message.png");
             while(!enterpress) {
                 SDL_PumpEvents();
                 keys = SDL_GetKeyboardState(NULL);
+                gf2d_sprite_draw_image(death,vector2d(0,0));
                 if (keys[SDL_SCANCODE_RETURN]) {
                     done = 1;
                     enterpress = true;
                 }
+                gf2d_graphics_next_frame();
             }
+            game();
         }
 
         if (keys[SDL_SCANCODE_ESCAPE])done = 1; // exit condition

@@ -27,6 +27,7 @@ typedef struct Entity_S
     Bool is_battery;
     Bool is_projectile;
     Bool is_enemy;
+    Bool is_ground_free;
     
     Shape shape;    //collision shape
     

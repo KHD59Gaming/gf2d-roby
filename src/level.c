@@ -62,6 +62,27 @@ void level_load_entities(EntLoad *list, int count) {
                 slog("flarevoid entity not created");
             }
         }
+        else if (strcmp(list[i].ent_type,"chasevoid") == 0) {
+            Entity *ent;
+            ent = chasevoid_new(list[i].spawn);
+            if (!ent) {
+                slog("chasevoid entity not created");
+            }
+        }
+        else if (strcmp(list[i].ent_type,"flyvoid") == 0) {
+            Entity *ent;
+            ent = flyvoid_new(list[i].spawn);
+            if (!ent) {
+                slog("flyvoid entity not created");
+            }
+        }
+        else if (strcmp(list[i].ent_type,"shyvoid") == 0) {
+            Entity *ent;
+            ent = shyvoid_new(list[i].spawn);
+            if (!ent) {
+                slog("shyvoid entity not created");
+            }
+        }
     }
 }
 
